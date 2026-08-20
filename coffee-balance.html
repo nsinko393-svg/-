@@ -1,0 +1,1117 @@
+<title>Кавовий Баланс</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg:#ede2cd;
+    --bg-grain-opacity:.05;
+    --surface:#fbf6ec;
+    --surface-2:#f2e8d6;
+    --border:#d9c8a3;
+    --ink:#2a1d12;
+    --ink-muted:#6d5c48;
+    --accent:#a5551b;
+    --accent-ink:#fff8ee;
+    --accent-soft:#eed6b3;
+    --sage:#657151;
+    --sage-soft:#dfe4d2;
+    --good:#3f7d52;
+    --good-soft:#dcead9;
+    --bad:#b23a2e;
+    --bad-soft:#f4dcd6;
+    --warn:#a1741f;
+    --warn-soft:#f2e3c4;
+    --shadow:rgba(42,29,18,.14);
+    --focus:#2f6fb2;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#181109;
+      --bg-grain-opacity:.08;
+      --surface:#241a12;
+      --surface-2:#2c2016;
+      --border:#40301e;
+      --ink:#f1e6d5;
+      --ink-muted:#b7a184;
+      --accent:#dd9647;
+      --accent-ink:#211404;
+      --accent-soft:#3c2c17;
+      --sage:#93a37c;
+      --sage-soft:#2c331f;
+      --good:#7ac488;
+      --good-soft:#213722;
+      --bad:#e97e6f;
+      --bad-soft:#3d2420;
+      --warn:#e0b558;
+      --warn-soft:#392c15;
+      --shadow:rgba(0,0,0,.45);
+      --focus:#7ab2e6;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#181109;
+    --bg-grain-opacity:.08;
+    --surface:#241a12;
+    --surface-2:#2c2016;
+    --border:#40301e;
+    --ink:#f1e6d5;
+    --ink-muted:#b7a184;
+    --accent:#dd9647;
+    --accent-ink:#211404;
+    --accent-soft:#3c2c17;
+    --sage:#93a37c;
+    --sage-soft:#2c331f;
+    --good:#7ac488;
+    --good-soft:#213722;
+    --bad:#e97e6f;
+    --bad-soft:#3d2420;
+    --warn:#e0b558;
+    --warn-soft:#392c15;
+    --shadow:rgba(0,0,0,.45);
+    --focus:#7ab2e6;
+  }
+
+  *,*::before,*::after{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;
+    background:
+      radial-gradient(ellipse 900px 500px at 15% -10%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 60%),
+      var(--bg);
+    color:var(--ink);
+    font-family:'Work Sans',ui-sans-serif,system-ui,sans-serif;
+    line-height:1.55;
+    min-height:100vh;
+  }
+  body::before{
+    content:"";
+    position:fixed;inset:0;pointer-events:none;z-index:0;
+    opacity:var(--bg-grain-opacity);
+    mix-blend-mode:multiply;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  h1,h2,h3{font-family:'Fraunces',ui-serif,Georgia,serif;font-weight:600;text-wrap:balance;margin:0}
+  a{color:var(--accent)}
+  button{font-family:inherit}
+  :focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+  .mono{font-family:'IBM Plex Mono',ui-monospace,'SFMono-Regular',Menlo,monospace;font-variant-numeric:tabular-nums}
+
+  .app{position:relative;z-index:1;max-width:1080px;margin:0 auto;padding:0 20px 64px}
+
+  /* ---------- topbar ---------- */
+  .topbar{
+    position:sticky;top:0;z-index:20;
+    display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+    padding:16px 4px 14px;
+    background:linear-gradient(180deg, var(--bg) 78%, transparent);
+  }
+  .brand{display:flex;align-items:baseline;gap:10px;margin-right:auto}
+  .brand-mark{font-size:1.5rem}
+  .brand h1{font-size:clamp(1.3rem,1.05rem + 1vw,1.7rem);color:var(--ink)}
+  .brand .shop-name{font-family:'IBM Plex Mono',monospace;font-size:.72rem;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em}
+  .stat-strip{display:flex;gap:8px;flex-wrap:wrap}
+  .chip{
+    display:flex;flex-direction:column;gap:1px;
+    background:var(--surface);border:1px solid var(--border);
+    border-radius:8px;padding:6px 12px;min-width:84px;
+    box-shadow:0 1px 0 var(--shadow);
+  }
+  .chip .l{font-size:.65rem;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted)}
+  .chip .v{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:.98rem;font-variant-numeric:tabular-nums}
+  .chip.status-good .v{color:var(--good)}
+  .chip.status-bad .v{color:var(--bad)}
+  .chip.status-warn .v{color:var(--warn)}
+
+  /* ---------- tabs ---------- */
+  .tabs{display:flex;gap:4px;overflow-x:auto;padding:2px 2px 12px;border-bottom:1px solid var(--border);margin-bottom:20px;scrollbar-width:thin}
+  .tab-btn{
+    flex:0 0 auto;
+    appearance:none;border:1px solid transparent;background:transparent;
+    color:var(--ink-muted);font-weight:600;font-size:.88rem;
+    padding:9px 16px;border-radius:8px 8px 0 0;cursor:pointer;
+    display:flex;align-items:center;gap:7px;white-space:nowrap;
+  }
+  .tab-btn:hover{color:var(--ink);background:var(--surface-2)}
+  .tab-btn.active{color:var(--accent);background:var(--surface);border-color:var(--border);border-bottom-color:var(--surface);transform:translateY(1px)}
+  .tab-dot{width:6px;height:6px;border-radius:50%;background:var(--bad);display:none}
+  .tab-btn[data-alert="1"] .tab-dot{display:inline-block}
+
+  /* ---------- generic ---------- */
+  .card{
+    background:var(--surface);border:1px solid var(--border);border-radius:12px;
+    padding:20px;box-shadow:0 2px 10px var(--shadow);
+  }
+  .stack{display:flex;flex-direction:column;gap:16px}
+  .row{display:flex;gap:16px;flex-wrap:wrap}
+  .card h2{font-size:1.15rem;margin-bottom:4px}
+  .card h2 + p{margin-top:0;color:var(--ink-muted);font-size:.9rem}
+  .muted{color:var(--ink-muted)}
+  .small{font-size:.82rem}
+
+  .btn{
+    appearance:none;border:1px solid var(--border);background:var(--surface-2);color:var(--ink);
+    font-weight:600;font-size:.9rem;padding:10px 18px;border-radius:8px;cursor:pointer;
+    transition:transform .08s ease, background .15s ease;
+  }
+  .btn:hover{background:var(--accent-soft)}
+  .btn:active{transform:translateY(1px)}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .btn-primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+  .btn-primary:hover{filter:brightness(1.08);background:var(--accent)}
+  .btn-ghost{background:transparent}
+  .btn-danger{color:var(--bad);border-color:var(--bad-soft)}
+  .btn-block{width:100%}
+  .btn-sm{padding:6px 12px;font-size:.8rem;border-radius:6px}
+
+  .pill{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;font-size:.78rem;font-weight:600}
+  .pill-good{background:var(--good-soft);color:var(--good)}
+  .pill-bad{background:var(--bad-soft);color:var(--bad)}
+  .pill-warn{background:var(--warn-soft);color:var(--warn)}
+  .pill-neutral{background:var(--surface-2);color:var(--ink-muted)}
+
+  /* ---------- form ---------- */
+  .field{display:flex;flex-direction:column;gap:6px}
+  .field label{font-size:.78rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-muted)}
+  .field .hint{font-size:.78rem;color:var(--ink-muted);font-weight:400;text-transform:none;letter-spacing:0}
+  input[type=text],input[type=number],input[type=password],select,textarea{
+    font-family:inherit;font-size:.95rem;color:var(--ink);background:var(--surface-2);
+    border:1px solid var(--border);border-radius:8px;padding:10px 12px;width:100%;
+  }
+  input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+  textarea{resize:vertical;min-height:90px;line-height:1.5}
+  .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+  .checkline{display:flex;align-items:center;gap:8px}
+  .checkline input{width:auto}
+  .error-box{background:var(--bad-soft);color:var(--bad);border-radius:8px;padding:10px 14px;font-size:.88rem;font-weight:600}
+
+  /* ---------- kpi ---------- */
+  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+  .kpi{background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:14px}
+  .kpi .l{font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-muted);display:flex;justify-content:space-between}
+  .kpi .v{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:1.5rem;margin-top:4px;font-variant-numeric:tabular-nums}
+  .trend{font-size:.72rem;font-weight:600}
+  .trend.up{color:var(--good)}
+  .trend.down{color:var(--bad)}
+
+  /* ---------- ledger table ---------- */
+  .table-wrap{overflow-x:auto}
+  table.ledger{width:100%;border-collapse:collapse;font-size:.9rem;min-width:420px}
+  table.ledger th{text-align:right;font-size:.7rem;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-muted);padding:6px 10px;border-bottom:1px solid var(--border)}
+  table.ledger th:first-child,table.ledger td:first-child{text-align:left}
+  table.ledger td{text-align:right;padding:7px 10px;border-bottom:1px dashed var(--border);font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums}
+  table.ledger tr.total td{border-top:2px solid var(--ink);border-bottom:none;font-weight:600;padding-top:9px}
+  table.ledger td.neg{color:var(--bad)}
+  table.ledger td.pos{color:var(--good)}
+
+  /* ---------- chart ---------- */
+  .chart-box{position:relative}
+  canvas#cashChart{width:100%;height:180px;display:block}
+
+  /* ---------- reputation gauge ---------- */
+  .gauge{height:8px;border-radius:999px;background:var(--surface-2);overflow:hidden;border:1px solid var(--border)}
+  .gauge > i{display:block;height:100%;border-radius:999px}
+
+  /* ---------- event ticket ---------- */
+  .ticket{
+    background:repeating-linear-gradient(var(--surface),var(--surface) 27px, var(--surface-2) 28px);
+    border:1px solid var(--border);border-left:4px solid var(--accent);
+    border-radius:4px;padding:18px 20px;
+    box-shadow:0 4px 16px var(--shadow);
+  }
+  .ticket-tag{font-family:'IBM Plex Mono',monospace;font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);font-weight:600}
+  .ticket h3{font-size:1.2rem;margin:4px 0 8px}
+  .choice-list{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+  .choice-btn{
+    text-align:left;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;
+    padding:11px 14px;cursor:pointer;font-size:.9rem;color:var(--ink);font-weight:500;
+  }
+  .choice-btn:hover{border-color:var(--accent);background:var(--accent-soft)}
+  .choice-btn .num{display:inline-block;width:20px;color:var(--accent);font-family:'IBM Plex Mono',monospace;font-weight:700}
+
+  .outcome-banner{border-radius:8px;padding:12px 14px;font-size:.9rem;display:flex;gap:10px;align-items:flex-start}
+  .outcome-banner.good{background:var(--good-soft);color:var(--good)}
+  .outcome-banner.bad{background:var(--bad-soft);color:var(--bad)}
+  .outcome-banner.neutral{background:var(--warn-soft);color:var(--warn)}
+
+  /* ---------- history ---------- */
+  .log-entry{display:flex;gap:12px;padding:12px 0;border-bottom:1px dashed var(--border)}
+  .log-entry:last-child{border-bottom:none}
+  .log-month{font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--ink-muted);min-width:64px}
+  .log-body{flex:1}
+  .log-title{font-weight:600;font-size:.92rem}
+  .log-choice{font-size:.85rem;color:var(--ink-muted);margin-top:2px}
+
+  /* ---------- generator ---------- */
+  .custom-event-card{background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+  fieldset{border:1px solid var(--border);border-radius:10px;padding:14px 16px 16px}
+  legend{font-family:'IBM Plex Mono',monospace;font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);padding:0 6px}
+
+  .empty-state{text-align:center;padding:32px 16px;color:var(--ink-muted)}
+
+  footer.note{margin-top:28px;font-size:.78rem;color:var(--ink-muted);line-height:1.6}
+
+  @media (max-width:640px){
+    .kpi .v{font-size:1.2rem}
+    .card{padding:16px}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .btn{transition:none}
+  }
+</style>
+
+<div class="app" id="app-root"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ============================== DATA ============================== */
+
+const LOCATIONS = {
+  sleeping:{label:"Спальний район", baseCustomers:55, rentMult:0.72, note:"Стабільні сусіди, мало випадкових перехожих."},
+  center:{label:"Центр міста", baseCustomers:110, rentMult:1.3, note:"Багато туристів і офісних працівників."},
+  business:{label:"Бізнес-центр", baseCustomers:140, rentMult:1.6, note:"Ранковий і обідній пік, порожньо ввечері."},
+  mall:{label:"Торговий центр", baseCustomers:190, rentMult:1.9, note:"Великий потік, але й високі вимоги орендодавця."}
+};
+const POSITIONING = {
+  economy:{label:"Економ", avgCheck:55, cogsRatio:0.36},
+  mid:{label:"Середній", avgCheck:85, cogsRatio:0.30},
+  premium:{label:"Преміум", avgCheck:135, cogsRatio:0.25}
+};
+const DIFFICULTY = {
+  easy:{label:"Легко", variance:0.10, eventChance:0.55},
+  normal:{label:"Нормально", variance:0.16, eventChance:0.72},
+  hard:{label:"Важко", variance:0.24, eventChance:0.88}
+};
+const SETUP_COST = 60000;
+const CAPACITY_PER_STAFF = 45;
+const SALARY_PER_STAFF = 16000;
+const LOAN_TERM = 24;
+
+/* ============================== HELPERS ============================== */
+
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const pick=arr=>arr[Math.floor(Math.random()*arr.length)];
+const uid=()=>Math.random().toString(36).slice(2,10);
+const fmt=n=>new Intl.NumberFormat("uk-UA",{maximumFractionDigits:0}).format(Math.round(n));
+const fmtMoney=n=>fmt(n)+" грн";
+const fmtSigned=n=>(n>=0?"+":"−")+fmt(Math.abs(n))+" грн";
+const pct=n=>(n>=0?"+":"")+Math.round(n*100)+"%";
+const escapeHtml=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+function addModifier(state,label,target,value,months){
+  state.modifiers.push({id:uid(),label,target,value,monthsLeft:months});
+}
+function cashDelta(state,v){ state.finance.cash += v; }
+function repDelta(state,v){ state.reputation = clamp(state.reputation+v,0,100); }
+
+/* ============================== EVENT POOL ============================== */
+
+const EVENTS = [
+{id:"rent_hike", title:"Орендодавець підвищує ставку", text:"Власник приміщення повідомляє: з наступного місяця оренда зростає — «ринок так диктує».",
+ choices:[
+  {label:"Погодитись без суперечок", apply(s){ const add=Math.round(s.params.rent*0.22); addModifier(s,"Нова оренда",'fixedCosts',add,12); return {text:`Ви підписали нові умови. Постійні витрати зросли на ${fmtMoney(add)}/міс на рік.`,tone:"bad"};}},
+  {label:"Торгуватися за менше підвищення", apply(s){
+    if(Math.random()<0.6){ const add=Math.round(s.params.rent*0.10); addModifier(s,"Нова оренда (домовлено)",'fixedCosts',add,12); return {text:`Вдалося домовитись: оренда зросте лише на ${fmtMoney(add)}/міс.`,tone:"good"};}
+    const add=Math.round(s.params.rent*0.22); addModifier(s,"Нова оренда",'fixedCosts',add,12); repDelta(s,-2); return {text:`Перемовини не дали результату, а орендодавець став прискіпливішим. +${fmtMoney(add)}/міс.`,tone:"bad"};
+  }},
+  {label:"Натякнути на переїзд", apply(s){
+    if(Math.random()<0.3){ return {text:"Орендодавець злякався втратити орендаря і залишив ставку без змін.",tone:"good"};}
+    const add=Math.round(s.params.rent*0.22); addModifier(s,"Нова оренда",'fixedCosts',add,10); addModifier(s,"Прискіпливий контроль",'fixedCosts',3000,4); return {text:`Блеф не спрацював. Оренда зросла, і тепер вас частіше «перевіряють». +${fmtMoney(add)}/міс.`,tone:"bad"};
+  }}
+ ]},
+{id:"competitor_open", title:"Поруч відкрився конкурент", text:"За 200 метрів відкрилась нова спеціалізована кав'ярня з гучним відкриттям.",
+ choices:[
+  {label:"Ігнорувати й працювати як завжди", apply(s){ addModifier(s,"Відтік клієнтів до конкурента",'customers',-0.12,6); return {text:"Частина клієнтів пішла спробувати новинку. Потік клієнтів −12% на 6 міс.",tone:"bad"};}},
+  {label:"Знизити ціни, щоб утримати потік", apply(s){ addModifier(s,"Знижені ціни",'avgCheck',-Math.round(s.params.avgCheck*0.15),4); addModifier(s,"Цінова конкуренція",'customers',0.05,4); return {text:"Середній чек впав, але частину клієнтів вдалось втримати.",tone:"neutral"};}},
+  {label:"Запустити акцію лояльності (15 000 грн)", apply(s){ cashDelta(s,-15000); repDelta(s,8); addModifier(s,"Акція лояльності",'customers',0.10,3); return {text:"Витратили 15 000 грн на промо — клієнти помітили турботу. Потік +10% на 3 міс.",tone:"good"};}}
+ ]},
+{id:"viral_post", title:"Кав'ярня стала вірусною", text:"Місцевий блогер виклав естетичне фото вашої кави, і допис розлетівся.",
+ choices:[
+  {label:"Підхопити хвилю: міні-акція (5 000 грн)", apply(s){ cashDelta(s,-5000); addModifier(s,"Вірусна хвиля",'customers',0.35,2); return {text:"Черга з новачків! Потік клієнтів +35% на 2 місяці.",tone:"good"};}},
+  {label:"Нічого не робити спеціально", apply(s){ addModifier(s,"Природний приплив",'customers',0.15,1); return {text:"Природний приплив клієнтів на місяць, без додаткових витрат.",tone:"neutral"};}}
+ ]},
+{id:"milk_price", title:"Постачальник підняв ціну на молоко", text:"Лист від постачальника: «через ситуацію на ринку» ціни на молочку зростають.",
+ choices:[
+  {label:"Прийняти нову ціну", apply(s){ addModifier(s,"Дорожче молоко",'cogsRatio',0.03,6); return {text:"Собівартість напоїв зросла на 3 в.п. на 6 місяців.",tone:"bad"};}},
+  {label:"Змінити постачальника", apply(s){
+    if(Math.random()<0.5){ addModifier(s,"Новий постачальник (вигідніше)",'cogsRatio',-0.01,6); return {text:"Знайшли дешевшого постачальника. Собівартість трохи знизилась.",tone:"good"};}
+    repDelta(s,-5); return {text:"Новий постачальник виявився гіршим за якістю — клієнти помітили. Репутація −5.",tone:"bad"};
+  }},
+  {label:"Підняти ціни в меню", apply(s){ addModifier(s,"Дорожче меню",'avgCheck',5,4); addModifier(s,"Реакція клієнтів на подорожчання",'customers',-0.08,4); return {text:"Чек зріс на 5 грн, але частина клієнтів пішла шукати дешевше.",tone:"neutral"};}}
+ ]},
+{id:"equipment_break", title:"Зламалась кавомашина", text:"Головна кавомашина видала помилку і зупинилась в розпал ранкового піку.",
+ choices:[
+  {label:"Терміновий ремонт (18 000 грн)", apply(s){ cashDelta(s,-18000); return {text:"Майстер приїхав того ж дня. Простою вдалось уникнути.",tone:"neutral"};}},
+  {label:"Ремонт у знайомого майстра (6 000 грн)", apply(s){
+    cashDelta(s,-6000);
+    if(Math.random()<0.5) return {text:"Пощастило — усе запрацювало як треба.",tone:"good"};
+    addModifier(s,"Нестабільна машина",'fixedCosts',4000,3); return {text:"За місяць машина знову почала барахлити. Додаткові витрати на обслуговування.",tone:"bad"};
+  }},
+  {label:"Купити нову машину (70 000 грн)", apply(s){ cashDelta(s,-70000); addModifier(s,"Нова техніка",'customers',0.08,6); return {text:"Кава стала швидшою і смачнішою. Потік клієнтів +8% на 6 міс.",tone:"good"};}}
+ ]},
+{id:"staff_quit", title:"Бариста звільняється несподівано", text:"Ваш найдосвідченіший бариста написав заяву «за власним бажанням» без попередження.",
+ choices:[
+  {label:"Терміново шукати заміну (8 000 грн)", apply(s){ cashDelta(s,-8000); return {text:"Кадрове агентство швидко знайшло заміну. Робота триває без збоїв.",tone:"neutral"};}},
+  {label:"Розподілити зміни між рештою команди", apply(s){ addModifier(s,"Економія на ставці",'fixedCosts',-Math.round(SALARY_PER_STAFF*0.6),2); addModifier(s,"Втома персоналу",'customers',-0.05,2); repDelta(s,-4); return {text:"Зекономили на зарплаті, але сервіс став повільнішим, а команда — втомленою.",tone:"bad"};}}
+ ]},
+{id:"health_inspection", title:"Планова перевірка санстанції", text:"Несподівано завітала комісія з перевіркою дотримання санітарних норм.",
+ choices:[
+  {label:"Найняти консультанта заздалегідь (5 000 грн)", apply(s){ cashDelta(s,-5000); repDelta(s,5); return {text:"Усі документи бездоганні. Перевірка пройшла без зауважень.",tone:"good"};}},
+  {label:"Пройти перевірку як є", apply(s){
+    if(Math.random()<0.75){ repDelta(s,3); return {text:"Усе гаразд, зауважень немає.",tone:"good"};}
+    cashDelta(s,-12000); return {text:"Знайшли дрібне порушення. Штраф 12 000 грн.",tone:"bad"};
+  }}
+ ]},
+{id:"weather_summer", title:"Спекотне літо", text:"Температура за вікном б'є рекорди — клієнти шукають холодні напої.",
+ choices:[
+  {label:"Розширити лінійку холодних напоїв (7 000 грн)", apply(s){ cashDelta(s,-7000); addModifier(s,"Літнє меню",'avgCheck',6,3); addModifier(s,"Попит на холодне",'customers',0.10,3); return {text:"Нове меню зайшло — і чек, і потік клієнтів зросли на 3 місяці.",tone:"good"};}},
+  {label:"Нічого не змінювати", apply(s){ addModifier(s,"Втрачений літній попит",'customers',-0.05,2); return {text:"Клієнти пішли за холодним до конкурентів. Потік −5% на 2 міс.",tone:"bad"};}}
+ ]},
+{id:"weather_winter", title:"Аномально холодна зима", text:"На вулицях пусто — люди не хочуть зайвий раз виходити з дому.",
+ choices:[
+  {label:"Запустити доставку (10 000 грн)", apply(s){ cashDelta(s,-10000); addModifier(s,"Доставка компенсує потік",'customers',0.12,3); return {text:"Доставка компенсувала втрату вуличного потоку.",tone:"good"};}},
+  {label:"Перечекати", apply(s){ addModifier(s,"Холодна пора",'customers',-0.10,2); return {text:"Потік клієнтів просів на 2 місяці.",tone:"bad"};}}
+ ]},
+{id:"road_construction", title:"Ремонт дороги біля кав'ярні", text:"Комунальники розкопали тротуар прямо навпроти входу.",
+ choices:[
+  {label:"Встановити вказівник і міні-акцію (4 000 грн)", apply(s){ cashDelta(s,-4000); addModifier(s,"Ремонт дороги (пом'якшено)",'customers',-0.08,3); return {text:"Вдалось втримати частину клієнтів, які йшли повз.",tone:"neutral"};}},
+  {label:"Перечекати", apply(s){ addModifier(s,"Ремонт дороги",'customers',-0.18,3); return {text:"Прохідність різко впала на 3 місяці.",tone:"bad"};}}
+ ]},
+{id:"bad_review", title:"Гучний негативний відгук", text:"Відгук про повільне обслуговування набрав тисячі переглядів у місцевих пабліках.",
+ choices:[
+  {label:"Публічно вибачитись і виправити (3 000 грн)", apply(s){ cashDelta(s,-3000); repDelta(s,4); addModifier(s,"Хвиля критики",'customers',-0.05,1); return {text:"Щира реакція згладила ситуацію, хоч слід все ж залишився на місяць.",tone:"neutral"};}},
+  {label:"Ігнорувати", apply(s){ repDelta(s,-12); addModifier(s,"Репутаційний удар",'customers',-0.10,2); return {text:"Мовчання сприйняли як байдужість. Репутація −12.",tone:"bad"};}}
+ ]},
+{id:"corporate_order", title:"Пропозиція корпоративного контракту", text:"Офіс по сусідству хоче щоденні замовлення кави для співробітників.",
+ choices:[
+  {label:"Погодитись на контракт", apply(s){ cashDelta(s,15000); addModifier(s,"Корпоративний потік",'customers',0.15,6); addModifier(s,"Додаткове навантаження",'fixedCosts',2000,6); return {text:"Отримали передоплату 15 000 грн і стабільний потік на півроку.",tone:"good"};}},
+  {label:"Відмовитись — це відволікає від основного потоку", apply(s){ return {text:"Вирішили зосередитись на звичних клієнтах. Без змін.",tone:"neutral"};}}
+ ]},
+{id:"pos_crash", title:"POS-система зависла на весь день", text:"Термінал і каса «зависли» одразу після відкриття.",
+ choices:[
+  {label:"Викликати техпідтримку (3 000 грн)", apply(s){ cashDelta(s,-9000); return {text:"Втрачений виторг дня плюс виклик майстра — разом 9 000 грн.",tone:"bad"};}},
+  {label:"Перейти на паперовий облік і працювати далі", apply(s){ repDelta(s,-3); return {text:"Обслуговування сповільнилось, частина клієнтів пішла. Репутація −3.",tone:"bad"};}}
+ ]},
+{id:"spoiled_batch", title:"Прострочена партія молока", text:"Вранці бариста помітив, що вчорашня партія молока вже на межі терміну придатності.",
+ choices:[
+  {label:"Викинути і терміново докупити (9 000 грн)", apply(s){ cashDelta(s,-9000); return {text:"Перестрахувались і уникнули будь-яких ризиків.",tone:"neutral"};}},
+  {label:"Використати обережно, не афішуючи", apply(s){
+    if(Math.random()<0.3) return {text:"Пронесло — ніхто нічого не помітив.",tone:"neutral"};
+    repDelta(s,-15); addModifier(s,"Скарги клієнтів",'customers',-0.10,2); return {text:"Кілька клієнтів поскаржились на смак. Репутація −15.",tone:"bad"};
+  }}
+ ]},
+{id:"energy_price", title:"Зросли тарифи на електроенергію", text:"Постачальник електроенергії підняв тариф для комерційних споживачів.",
+ choices:[
+  {label:"Прийняти як є", apply(s){ addModifier(s,"Дорожча електрика",'fixedCosts',3500,12); return {text:"Постійні витрати зросли на 3 500 грн/міс на рік.",tone:"bad"};}},
+  {label:"Встановити енергоощадне обладнання (25 000 грн)", apply(s){ cashDelta(s,-25000); addModifier(s,"Дорожча електрика (пом'якшено)",'fixedCosts',1000,12); return {text:"Разова інвестиція зменшила довгостроковий вплив подорожчання.",tone:"good"};}}
+ ]},
+{id:"tax_audit", title:"Податкова перевірка", text:"Прийшло повідомлення про плановий податковий аудит.",
+ choices:[
+  {label:"Найняти бухгалтера для підготовки (6 000 грн)", apply(s){ cashDelta(s,-6000); return {text:"Документи ідеальні — перевірка пройшла без зауважень.",tone:"neutral"};}},
+  {label:"Розбиратися самостійно", apply(s){
+    if(Math.random()<0.5) return {text:"Пощастило, все зійшлося.",tone:"good"};
+    cashDelta(s,-20000); return {text:"Знайшли розбіжності в документах. Штраф 20 000 грн.",tone:"bad"};
+  }}
+ ]},
+{id:"influencer", title:"Пропозиція від блогера", text:"Місцевий блогер пропонує платну колаборацію за огляд кав'ярні.",
+ choices:[
+  {label:"Погодитись (10 000 грн)", apply(s){
+    cashDelta(s,-10000);
+    if(Math.random()<0.8){ addModifier(s,"Реклама у блогера",'customers',0.20,2); return {text:"Аудиторія блогера виявилась цільовою. Потік +20% на 2 міс.",tone:"good"};}
+    return {text:"Аудиторія виявилась не зовсім цільовою — помітного ефекту немає.",tone:"neutral"};
+  }},
+  {label:"Відмовитись", apply(s){ return {text:"Вирішили не витрачатись. Без змін.",tone:"neutral"};}}
+ ]},
+{id:"loyalty_grant", title:"Міська програма підтримки бізнесу", text:"Місто оголосило грантову програму для малого бізнесу у сфері харчування.",
+ choices:[
+  {label:"Подати заявку (1 000 грн на оформлення)", apply(s){
+    cashDelta(s,-1000);
+    if(Math.random()<0.5){ cashDelta(s,40000); return {text:"Заявку схвалено! Отримано грант 40 000 грн.",tone:"good"};}
+    return {text:"Цього разу відмовили, витрачено лише час на оформлення.",tone:"neutral"};
+  }},
+  {label:"Не витрачати на це час", apply(s){ return {text:"Пропустили можливість. Без змін.",tone:"neutral"};}}
+ ]},
+{id:"menu_idea", title:"Ідея нового напою від бариста", text:"Ваш бариста придумав авторський сезонний напій і хоче додати його в меню.",
+ choices:[
+  {label:"Впровадити (4 000 грн на тестування)", apply(s){ cashDelta(s,-4000); addModifier(s,"Авторський напій у меню",'avgCheck',7,12); repDelta(s,5); return {text:"Напій став хітом — середній чек зріс на 7 грн на тривалий час.",tone:"good"};}},
+  {label:"Відхилити ідею", apply(s){ return {text:"Меню лишається без змін.",tone:"neutral"};}}
+ ]},
+{id:"currency_swing", title:"Стрибок курсу валют", text:"Коливання курсу вдарило по ціні імпортної обсмаженої кави.",
+ choices:[
+  {label:"Прийняти нову ціну", apply(s){ addModifier(s,"Дорожче зерно",'cogsRatio',0.025,6); return {text:"Собівартість зросла на 2.5 в.п. на 6 місяців.",tone:"bad"};}},
+  {label:"Перейти на локального обсмажувача", apply(s){
+    if(Math.random()<0.5){ repDelta(s,-8); return {text:"Смак кави змінився, частина постійних клієнтів незадоволена.",tone:"bad"};}
+    return {text:"Локальний обсмажувач виявився не гіршим і стабільнішим за ціною.",tone:"good"};
+  }}
+ ]},
+{id:"tv_feature", title:"Телесюжет про кав'ярні міста", text:"Місцевий телеканал знімає сюжет про кращі кав'ярні і хоче завітати саме до вас.",
+ choices:[
+  {label:"Погодитись на зйомку (2 000 грн)", apply(s){ cashDelta(s,-2000); repDelta(s,10); addModifier(s,"Телесюжет",'customers',0.18,2); return {text:"Сюжет вийшов у ефір — потік клієнтів +18% на 2 місяці.",tone:"good"};}},
+  {label:"Відмовитись, щоб не відволікати персонал", apply(s){ return {text:"Спокійно попрацювали як завжди.",tone:"neutral"};}}
+ ]}
+];
+
+/* ============================== PROCEDURAL GENERATOR ============================== */
+
+function generateCustomEvent(rawInput){
+  const raw=(rawInput||"").trim();
+  const firstSentence=(raw.split(/[.!?\n]/)[0]||"Нова обставина").trim().slice(0,70) || "Нова обставина";
+  const flavor=raw.slice(0,260) || "У вашому місті сталася подія, що може вплинути на бізнес.";
+  const targets=[
+    {target:"customers",label:"потік клієнтів"},
+    {target:"cogsRatio",label:"собівартість"},
+    {target:"fixedCosts",label:"постійні витрати"},
+    {target:"avgCheck",label:"середній чек"}
+  ];
+  const t=pick(targets);
+  const direction=Math.random()<0.55?-1:1;
+  const months=pick([2,3,4,6]);
+  let magBase = t.target==="customers"?0.12:(t.target==="cogsRatio"?0.025:(t.target==="fixedCosts"?3500:6));
+  const softenCost=Math.round(4000+Math.random()*12000);
+  return {
+    id:"custom_"+uid(),
+    custom:true,
+    title:firstSentence,
+    text:flavor,
+    choices:[
+      {label:"Прийняти ситуацію як є", apply(s){
+        const val=direction*magBase;
+        addModifier(s,firstSentence,t.target,val,months);
+        return {text:`Вплив на ${t.label}: ${t.target==="cogsRatio"?pct(val):(t.target==="customers"?pct(val):fmtSigned(val)+"/міс")} на ${months} міс.`,tone:direction<0?"bad":"good"};
+      }},
+      {label:`Інвестувати ${fmt(softenCost)} грн, щоб пом'якшити наслідки`, apply(s){
+        cashDelta(s,-softenCost);
+        const val=direction*magBase*0.4;
+        if(Math.abs(val)>0.0001) addModifier(s,firstSentence+" (пом'якшено)",t.target,val,months);
+        return {text:`Витратили ${fmtMoney(softenCost)} — вплив на ${t.label} суттєво зменшено.`,tone:"neutral"};
+      }}
+    ]
+  };
+}
+
+/* ============================== AI (optional, requires self-hosting) ============================== */
+
+async function tryAiGenerate(state, rawInput){
+  const ai=state.aiSettings;
+  if(!ai || !ai.apiKey) return null;
+  const sys="Ти генеруєш ігрову подію для симулятора фінансів кав'ярні українською мовою. Відповідай ЛИШЕ у форматі JSON без пояснень: "+
+    '{"title":"...", "text":"...", "choiceA":"...", "choiceB":"...", "outcomeA":"...", "outcomeB":"..."}';
+  const userMsg="Тема/матеріал для події: "+(rawInput||"довільна бізнес-ситуація для кав'ярні");
+  try{
+    const ctrl=new AbortController();
+    const timer=setTimeout(()=>ctrl.abort(),9000);
+    let res, data;
+    if(ai.provider==="anthropic"){
+      res=await fetch((ai.baseUrl||"https://api.anthropic.com/v1/messages"),{
+        method:"POST", signal:ctrl.signal,
+        headers:{"content-type":"application/json","x-api-key":ai.apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+        body:JSON.stringify({model:ai.model||"claude-sonnet-5",max_tokens:400,system:sys,messages:[{role:"user",content:userMsg}]})
+      });
+      data=await res.json();
+      clearTimeout(timer);
+      if(!res.ok) throw new Error(data?.error?.message||"AI request failed");
+      const txt=data?.content?.[0]?.text||"";
+      return JSON.parse(txt.match(/\{[\s\S]*\}/)[0]);
+    }else{
+      res=await fetch((ai.baseUrl||"https://api.openai.com/v1/chat/completions"),{
+        method:"POST", signal:ctrl.signal,
+        headers:{"content-type":"application/json","authorization":"Bearer "+ai.apiKey},
+        body:JSON.stringify({model:ai.model||"gpt-4o-mini",messages:[{role:"system",content:sys},{role:"user",content:userMsg}],temperature:0.9})
+      });
+      data=await res.json();
+      clearTimeout(timer);
+      if(!res.ok) throw new Error(data?.error?.message||"AI request failed");
+      const txt=data?.choices?.[0]?.message?.content||"";
+      return JSON.parse(txt.match(/\{[\s\S]*\}/)[0]);
+    }
+  }catch(err){
+    console.warn("AI generation unavailable, falling back:", err.message);
+    return null;
+  }
+}
+
+function customEventFromAiJson(json, rawInput){
+  const months=pick([2,3,4,6]);
+  const magOptions=[{target:"customers",mag:0.12},{target:"cogsRatio",mag:0.025},{target:"fixedCosts",mag:3500}];
+  const ta=pick(magOptions), tb=pick(magOptions);
+  return {
+    id:"ai_"+uid(), custom:true,
+    title:(json.title||"Згенерована подія").slice(0,80),
+    text:(json.text||rawInput||"").slice(0,320),
+    choices:[
+      {label:(json.choiceA||"Варіант А").slice(0,80), apply(s){
+        const val=(Math.random()<0.5?-1:1)*ta.mag; addModifier(s,json.title||"AI-подія",ta.target,val,months);
+        return {text:json.outcomeA||"Обставини вплинули на бізнес.",tone:val<0?"bad":"good"};
+      }},
+      {label:(json.choiceB||"Варіант Б").slice(0,80), apply(s){
+        const val=(Math.random()<0.5?-1:1)*tb.mag*0.6; addModifier(s,json.title||"AI-подія",tb.target,val,months);
+        return {text:json.outcomeB||"Ви обрали інший шлях.",tone:val<0?"bad":"good"};
+      }}
+    ]
+  };
+}
+
+/* ============================== STATE ============================== */
+
+const STORAGE_KEY="coffee_balance_sim_v1";
+
+function freshState(){
+  return {
+    setupDone:false, gameOver:null,
+    meta:{name:"Моя кав'ярня", difficulty:"normal"},
+    finance:{cash:0},
+    params:{location:"center",positioning:"mid",staff:3,baseCustomers:0,avgCheck:0,cogsRatio:0,rent:0,fixedCosts:0,loan:null},
+    modifiers:[],
+    reputation:60,
+    month:0,
+    history:[],
+    pendingEvent:null,
+    recentEventIds:[],
+    customEvents:[],
+    aiSettings:{provider:"openai",apiKey:"",baseUrl:"",model:""},
+    ui:{tab:"setup"}
+  };
+}
+
+let state=loadState();
+
+function loadState(){
+  try{
+    const raw=localStorage.getItem(STORAGE_KEY);
+    if(!raw) return freshState();
+    const parsed=JSON.parse(raw);
+    return Object.assign(freshState(),parsed,{ui:{tab:parsed?.setupDone?"dashboard":"setup"}});
+  }catch(e){ return freshState(); }
+}
+function saveState(){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){}
+}
+
+/* ============================== SIM ENGINE ============================== */
+
+function getEffectiveParams(s){
+  const p=s.params;
+  let customersMult=1, cogsAdd=0, fixedAdd=0, checkAdd=0;
+  s.modifiers.forEach(m=>{
+    if(m.target==="customers") customersMult*=(1+m.value);
+    if(m.target==="cogsRatio") cogsAdd+=m.value;
+    if(m.target==="fixedCosts") fixedAdd+=m.value;
+    if(m.target==="avgCheck") checkAdd+=m.value;
+  });
+  return{
+    customersPerDay: Math.max(0, p.baseCustomers*customersMult),
+    cogsRatio: clamp(p.cogsRatio+cogsAdd, 0.12, 0.75),
+    avgCheck: Math.max(15, p.avgCheck+checkAdd),
+    fixedCosts: Math.max(0, p.fixedCosts+fixedAdd)
+  };
+}
+
+function computeMonth(s){
+  const eff=getEffectiveParams(s);
+  const diff=DIFFICULTY[s.meta.difficulty];
+  const variance=1+(Math.random()*2-1)*diff.variance;
+  const customers=Math.round(eff.customersPerDay*30*variance);
+  const revenue=Math.round(customers*eff.avgCheck);
+  const cogs=Math.round(revenue*eff.cogsRatio);
+  const opex=Math.round(eff.fixedCosts);
+  const loanPayment=s.params.loan?s.params.loan.payment:0;
+  const tax=Math.round(revenue*0.05);
+  const netProfit=revenue-cogs-opex-loanPayment-tax;
+  return{customers,revenue,cogs,opex,loanPayment,tax,netProfit};
+}
+
+function advanceMonth(){
+  if(state.pendingEvent||state.gameOver) return;
+  const result=computeMonth(state);
+  state.finance.cash+=result.netProfit;
+  state.month+=1;
+
+  state.modifiers.forEach(m=>m.monthsLeft-=1);
+  state.modifiers=state.modifiers.filter(m=>m.monthsLeft>0);
+
+  state.reputation = clamp(state.reputation + (result.netProfit>0?1:-1) + (Math.random()<0.3?pick([-1,0,1]):0), 0, 100);
+
+  if(state.params.loan){
+    state.params.loan.monthsLeft-=1;
+    if(state.params.loan.monthsLeft<=0) state.params.loan=null;
+  }
+
+  state.history.push({month:state.month, ...result, cash:state.finance.cash});
+
+  if(state.finance.cash < -30000){
+    state.gameOver={reason:"bankrupt", months:state.month};
+    saveState(); render(); return;
+  }
+
+  const diff=DIFFICULTY[state.meta.difficulty];
+  if(Math.random()<diff.eventChance){
+    const pool=EVENTS.filter(e=>!state.recentEventIds.includes(e.id)).concat(state.customEvents);
+    const ev = pool.length? pick(pool) : pick(EVENTS);
+    state.pendingEvent=ev;
+    state.recentEventIds=[ev.id, ...state.recentEventIds].slice(0,4);
+  }
+
+  saveState(); render();
+}
+
+function resolveChoice(idx){
+  if(!state.pendingEvent) return;
+  const choice=state.pendingEvent.choices[idx];
+  if(!choice) return;
+  const outcome=choice.apply(state);
+  state.lastOutcome={title:state.pendingEvent.title, choiceLabel:choice.label, ...outcome};
+  state.history.push({eventLog:true, month:state.month, title:state.pendingEvent.title, choice:choice.label, outcomeText:outcome.text, tone:outcome.tone});
+  state.pendingEvent=null;
+  saveState(); render();
+}
+
+/* ============================== SETUP ============================== */
+
+function trySetup(form){
+  const name=form.name.value.trim()||"Моя кав'ярня";
+  const budget=Number(form.budget.value)||0;
+  const locationKey=form.location.value;
+  const positioningKey=form.positioning.value;
+  const staff=clamp(Number(form.staff.value)||1,1,12);
+  const difficulty=form.difficulty.value;
+  const takeLoan=form.takeLoan.checked;
+  const loanAmount=takeLoan?Math.max(0,Number(form.loanAmount.value)||0):0;
+  const loanRate=takeLoan?Number(form.loanRate.value):0;
+
+  const totalStart = budget + loanAmount;
+  if(totalStart < SETUP_COST + 20000){
+    return {error:`Недостатньо стартового капіталу. Відкриття коштує ${fmtMoney(SETUP_COST)}, і потрібен запас на перший місяць. Мінімум разом із кредитом: ${fmtMoney(SETUP_COST+20000)}.`};
+  }
+
+  const loc=LOCATIONS[locationKey], pos=POSITIONING[positioningKey];
+  const capacity=staff*CAPACITY_PER_STAFF;
+  const baseCustomers=Math.min(loc.baseCustomers,capacity);
+  const rent=Math.round(loc.rentMult*9000);
+  const salaries=staff*SALARY_PER_STAFF;
+  const fixedCosts=rent+salaries+8000+4000;
+
+  let cash=budget-SETUP_COST;
+  let loan=null;
+  if(takeLoan && loanAmount>0){
+    cash+=loanAmount;
+    const r=loanRate/100/12;
+    const payment = r>0 ? Math.round(loanAmount*r/(1-Math.pow(1+r,-LOAN_TERM))) : Math.round(loanAmount/LOAN_TERM);
+    loan={amount:loanAmount, rate:loanRate, term:LOAN_TERM, monthsLeft:LOAN_TERM, payment};
+  }
+
+  state=Object.assign(freshState(),{
+    setupDone:true,
+    meta:{name, difficulty},
+    finance:{cash},
+    params:{location:locationKey, positioning:positioningKey, staff, baseCustomers, avgCheck:pos.avgCheck, cogsRatio:pos.cogsRatio, rent, fixedCosts, loan},
+    reputation:60, month:0,
+    aiSettings:state.aiSettings,
+    ui:{tab:"dashboard"}
+  });
+  saveState();
+  return {error:null};
+}
+
+/* ============================== RENDER ============================== */
+
+const root=document.getElementById("app-root");
+
+function statusPill(){
+  if(state.gameOver) return `<span class="pill pill-bad">Банкрутство</span>`;
+  const last=state.history.filter(h=>!h.eventLog).slice(-1)[0];
+  if(!last) return `<span class="pill pill-neutral">Готово до старту</span>`;
+  if(last.netProfit>0) return `<span class="pill pill-good">Прибутково</span>`;
+  if(last.netProfit<0) return `<span class="pill pill-bad">Збитково</span>`;
+  return `<span class="pill pill-warn">Точка беззбитковості</span>`;
+}
+
+function renderTopbar(){
+  const cashClass = state.finance.cash<0?"status-bad":(state.finance.cash<50000?"status-warn":"status-good");
+  return `
+  <div class="topbar">
+    <div class="brand">
+      <span class="brand-mark">☕</span>
+      <div>
+        <h1>Кавовий Баланс</h1>
+        <div class="shop-name">${escapeHtml(state.meta.name)}${state.setupDone?` · місяць ${state.month}`:""}</div>
+      </div>
+    </div>
+    ${state.setupDone?`
+    <div class="stat-strip">
+      <div class="chip ${cashClass}"><span class="l">Готівка</span><span class="v mono">${fmtMoney(state.finance.cash)}</span></div>
+      <div class="chip"><span class="l">Репутація</span><span class="v mono">${Math.round(state.reputation)}/100</span></div>
+      <div class="chip"><span class="l">Статус</span><span class="v">${statusPill()}</span></div>
+    </div>`:""}
+  </div>`;
+}
+
+function renderTabs(){
+  const tabs=[
+    ["setup","Налаштування"],
+    ["dashboard","Кабінет"],
+    ["history","Журнал"],
+    ["generator","Генератор подій"]
+  ];
+  return `<div class="tabs">${tabs.map(([key,label])=>`
+    <button class="tab-btn ${state.ui.tab===key?"active":""}" data-action="switch-tab" data-tab="${key}">${label}</button>
+  `).join("")}</div>`;
+}
+
+function renderSetupTab(){
+  if(state.setupDone){
+    const p=state.params;
+    return `<div class="card stack">
+      <div><h2>Параметри бізнесу</h2><p>Кав'ярню вже відкрито. Змінити стартові умови можна лише почавши заново.</p></div>
+      <div class="kpi-grid">
+        <div class="kpi"><div class="l">Локація</div><div class="v" style="font-size:1rem">${LOCATIONS[p.location].label}</div></div>
+        <div class="kpi"><div class="l">Позиціонування</div><div class="v" style="font-size:1rem">${POSITIONING[p.positioning].label}</div></div>
+        <div class="kpi"><div class="l">Команда</div><div class="v" style="font-size:1rem">${p.staff} осіб</div></div>
+        <div class="kpi"><div class="l">Оренда/міс</div><div class="v" style="font-size:1rem">${fmtMoney(p.rent)}</div></div>
+        <div class="kpi"><div class="l">Складність</div><div class="v" style="font-size:1rem">${DIFFICULTY[state.meta.difficulty].label}</div></div>
+        <div class="kpi"><div class="l">Кредит</div><div class="v" style="font-size:1rem">${p.loan?fmtMoney(p.loan.payment)+"/міс":"немає"}</div></div>
+      </div>
+      <div class="row" style="justify-content:flex-end">
+        <button class="btn btn-danger" data-action="reset-game">Почати нову симуляцію</button>
+      </div>
+    </div>`;
+  }
+  return `<div class="card stack">
+    <div><h2>Відкрийте кав'ярню</h2><p>Задайте бюджет і умови — решту порахує симулятор.</p></div>
+    <form id="setup-form" class="stack" data-action="submit-setup">
+      <div class="form-grid">
+        <div class="field"><label for="f-name">Назва кав'ярні</label><input type="text" id="f-name" name="name" value="Моя кав'ярня" maxlength="40"></div>
+        <div class="field"><label for="f-budget">Стартовий бюджет</label><input type="number" id="f-budget" name="budget" value="250000" min="0" step="1000"><span class="hint">Відкриття (обладнання, ремонт) коштує ${fmtMoney(SETUP_COST)}.</span></div>
+        <div class="field"><label for="f-location">Локація</label>
+          <select id="f-location" name="location">${Object.entries(LOCATIONS).map(([k,v])=>`<option value="${k}">${v.label}</option>`).join("")}</select>
+        </div>
+        <div class="field"><label for="f-positioning">Позиціонування цін</label>
+          <select id="f-positioning" name="positioning">${Object.entries(POSITIONING).map(([k,v])=>`<option value="${k}" ${k==="mid"?"selected":""}>${v.label} (~${v.avgCheck} грн чек)</option>`).join("")}</select>
+        </div>
+        <div class="field"><label for="f-staff">Розмір команди</label><input type="number" id="f-staff" name="staff" value="3" min="1" max="12"></div>
+        <div class="field"><label for="f-difficulty">Складність</label>
+          <select id="f-difficulty" name="difficulty">${Object.entries(DIFFICULTY).map(([k,v])=>`<option value="${k}" ${k==="normal"?"selected":""}>${v.label}</option>`).join("")}</select>
+        </div>
+      </div>
+      <fieldset>
+        <legend>Кредит (опційно)</legend>
+        <div class="stack">
+          <label class="checkline"><input type="checkbox" id="f-takeLoan" name="takeLoan"> Взяти кредит на відкриття</label>
+          <div class="form-grid">
+            <div class="field"><label for="f-loanAmount">Сума кредиту</label><input type="number" id="f-loanAmount" name="loanAmount" value="100000" min="0" step="5000"></div>
+            <div class="field"><label for="f-loanRate">Ставка, % річних</label>
+              <select id="f-loanRate" name="loanRate"><option value="8">8%</option><option value="14" selected>14%</option><option value="22">22%</option></select>
+            </div>
+          </div>
+          <p class="small muted">Термін кредиту — 24 місяці, ануїтетний платіж.</p>
+        </div>
+      </fieldset>
+      <div id="setup-error"></div>
+      <button type="submit" class="btn btn-primary btn-block">Відкрити кав'ярню</button>
+    </form>
+  </div>`;
+}
+
+function renderChart(){
+  const points=state.history.filter(h=>!h.eventLog);
+  if(points.length<2) return `<div class="empty-state small">Графік з'явиться після кількох місяців роботи.</div>`;
+  return `<div class="chart-box"><canvas id="cashChart" width="600" height="180"></canvas></div>`;
+}
+
+function drawChart(){
+  const canvas=document.getElementById("cashChart");
+  if(!canvas) return;
+  const points=state.history.filter(h=>!h.eventLog).map(h=>h.cash);
+  if(points.length<2) return;
+  const dpr=window.devicePixelRatio||1;
+  const rect=canvas.getBoundingClientRect();
+  canvas.width=rect.width*dpr; canvas.height=rect.height*dpr;
+  const ctx=canvas.getContext("2d");
+  ctx.scale(dpr,dpr);
+  const W=rect.width,H=rect.height,pad=8;
+  const min=Math.min(0,...points), max=Math.max(...points,1);
+  const range=(max-min)||1;
+  const x=i=>pad+(W-2*pad)*(i/(points.length-1));
+  const y=v=>H-pad-(H-2*pad)*((v-min)/range);
+
+  const styles=getComputedStyle(document.documentElement);
+  const ink=styles.getPropertyValue("--ink").trim();
+  const accent=styles.getPropertyValue("--accent").trim();
+  const border=styles.getPropertyValue("--border").trim();
+  const bad=styles.getPropertyValue("--bad").trim();
+
+  ctx.clearRect(0,0,W,H);
+
+  ctx.strokeStyle=border; ctx.lineWidth=1; ctx.setLineDash([3,3]);
+  const zeroY=y(0);
+  ctx.beginPath(); ctx.moveTo(pad,zeroY); ctx.lineTo(W-pad,zeroY); ctx.stroke();
+  ctx.setLineDash([]);
+
+  const grad=ctx.createLinearGradient(0,0,0,H);
+  grad.addColorStop(0, accent+"55"); grad.addColorStop(1, accent+"00");
+  ctx.beginPath(); ctx.moveTo(x(0),H-pad);
+  points.forEach((v,i)=>ctx.lineTo(x(i),y(v)));
+  ctx.lineTo(x(points.length-1),H-pad); ctx.closePath();
+  ctx.fillStyle=grad; ctx.fill();
+
+  ctx.beginPath();
+  points.forEach((v,i)=>{ i===0?ctx.moveTo(x(i),y(v)):ctx.lineTo(x(i),y(v)); });
+  ctx.strokeStyle=points[points.length-1]<0?bad:accent; ctx.lineWidth=2.5; ctx.lineJoin="round"; ctx.stroke();
+
+  const lastI=points.length-1;
+  ctx.beginPath(); ctx.arc(x(lastI),y(points[lastI]),4,0,Math.PI*2);
+  ctx.fillStyle=points[lastI]<0?bad:accent; ctx.fill();
+}
+
+function renderTrend(field){
+  const rows=state.history.filter(h=>!h.eventLog);
+  if(rows.length<2) return "";
+  const cur=rows[rows.length-1][field], prev=rows[rows.length-2][field];
+  if(prev===0) return "";
+  const d=(cur-prev)/Math.abs(prev);
+  const cls=d>=0?"up":"down";
+  const arrow=d>=0?"▲":"▼";
+  return `<span class="trend ${cls}">${arrow} ${Math.abs(Math.round(d*100))}%</span>`;
+}
+
+function renderLedger(){
+  const rows=state.history.filter(h=>!h.eventLog);
+  if(!rows.length) return `<div class="empty-state small">Ще немає жодного завершеного місяця.</div>`;
+  const r=rows[rows.length-1];
+  return `<div class="table-wrap"><table class="ledger">
+    <thead><tr><th>Стаття, місяць ${r.month}</th><th>Сума</th></tr></thead>
+    <tbody>
+      <tr><td>Клієнтів за місяць</td><td>${fmt(r.customers)}</td></tr>
+      <tr><td>Виторг</td><td class="pos">${fmtMoney(r.revenue)}</td></tr>
+      <tr><td>Собівартість (COGS)</td><td class="neg">−${fmtMoney(r.cogs)}</td></tr>
+      <tr><td>Постійні витрати</td><td class="neg">−${fmtMoney(r.opex)}</td></tr>
+      ${r.loanPayment?`<tr><td>Платіж за кредитом</td><td class="neg">−${fmtMoney(r.loanPayment)}</td></tr>`:""}
+      <tr><td>Єдиний податок (5%)</td><td class="neg">−${fmtMoney(r.tax)}</td></tr>
+      <tr class="total"><td>Чистий прибуток</td><td class="${r.netProfit>=0?"pos":"neg"}">${fmtSigned(r.netProfit)}</td></tr>
+    </tbody>
+  </table></div>`;
+}
+
+function renderModifiers(){
+  if(!state.modifiers.length) return "";
+  return `<div class="stack">
+    <h3 style="font-size:.95rem">Активні обставини</h3>
+    <div class="row">${state.modifiers.map(m=>`<span class="pill pill-neutral">${escapeHtml(m.label)} · ${m.monthsLeft} міс.</span>`).join("")}</div>
+  </div>`;
+}
+
+function renderEventTicket(){
+  const ev=state.pendingEvent;
+  if(!ev) return "";
+  return `<div class="ticket">
+    <div class="ticket-tag">Потрібне рішення</div>
+    <h3>${escapeHtml(ev.title)}</h3>
+    <p class="small">${escapeHtml(ev.text)}</p>
+    <div class="choice-list">
+      ${ev.choices.map((c,i)=>`<button class="choice-btn" data-action="resolve-choice" data-idx="${i}"><span class="num">${i+1}.</span>${escapeHtml(c.label)}</button>`).join("")}
+    </div>
+  </div>`;
+}
+
+function renderOutcome(){
+  if(!state.lastOutcome) return "";
+  const o=state.lastOutcome;
+  return `<div class="outcome-banner ${o.tone||"neutral"}"><span>${o.tone==="good"?"✓":(o.tone==="bad"?"!":"·")}</span><div><strong>${escapeHtml(o.choiceLabel)}.</strong> ${escapeHtml(o.text)}</div></div>`;
+}
+
+function renderDashboardTab(){
+  if(!state.setupDone){
+    return `<div class="empty-state card">Спершу відкрийте кав'ярню на вкладці «Налаштування».</div>`;
+  }
+  if(state.gameOver){
+    return `<div class="card stack">
+      <h2>Кав'ярня закрилась</h2>
+      <p class="muted">Готівка пішла в мінус, і бізнес не зміг покрити витрати. Ви протримались <strong>${state.gameOver.months}</strong> міс.</p>
+      <button class="btn btn-primary" data-action="reset-game">Спробувати ще раз</button>
+    </div>`;
+  }
+  const repPct=Math.round(state.reputation);
+  const repColor = repPct<35?"var(--bad)":(repPct<65?"var(--warn)":"var(--good)");
+  return `<div class="stack">
+    ${state.lastOutcome?`<div>${renderOutcome()}</div>`:""}
+    ${state.pendingEvent?renderEventTicket():""}
+    <div class="card stack">
+      <h2>Кабінет</h2>
+      <div class="kpi-grid">
+        <div class="kpi"><div class="l">Готівка</div><div class="v">${fmtMoney(state.finance.cash)}</div></div>
+        <div class="kpi"><div class="l">Прибуток минулого міс. ${renderTrend("netProfit")}</div><div class="v">${state.history.filter(h=>!h.eventLog).length?fmtSigned(state.history.filter(h=>!h.eventLog).slice(-1)[0].netProfit):"—"}</div></div>
+        <div class="kpi"><div class="l">Виторг минулого міс. ${renderTrend("revenue")}</div><div class="v">${state.history.filter(h=>!h.eventLog).length?fmtMoney(state.history.filter(h=>!h.eventLog).slice(-1)[0].revenue):"—"}</div></div>
+        <div class="kpi"><div class="l">Місяців у бізнесі</div><div class="v">${state.month}</div></div>
+      </div>
+      <div class="stack">
+        <div class="row" style="justify-content:space-between;align-items:center">
+          <span class="small muted">Репутація</span><span class="small mono">${repPct}/100</span>
+        </div>
+        <div class="gauge"><i style="width:${repPct}%;background:${repColor}"></i></div>
+      </div>
+      ${renderModifiers()}
+    </div>
+    <div class="card stack">
+      <h2>Динаміка готівки</h2>
+      ${renderChart()}
+    </div>
+    <div class="card stack">
+      <h2>Фінансовий звіт</h2>
+      ${renderLedger()}
+    </div>
+    <button class="btn btn-primary btn-block" data-action="advance-month" ${state.pendingEvent?"disabled":""}>
+      ${state.pendingEvent?"Спершу прийміть рішення вище":"Наступний місяць →"}
+    </button>
+  </div>`;
+}
+
+function renderHistoryTab(){
+  if(!state.setupDone) return `<div class="empty-state card">Історія з'явиться після відкриття кав'ярні.</div>`;
+  const entries=[...state.history].reverse();
+  if(!entries.length) return `<div class="empty-state card">Поки що порожньо. Пройдіть перший місяць у «Кабінеті».</div>`;
+  return `<div class="card"><div class="stack">
+    ${entries.map(e=>{
+      if(e.eventLog){
+        return `<div class="log-entry">
+          <div class="log-month mono">М${e.month}</div>
+          <div class="log-body">
+            <div class="log-title">${escapeHtml(e.title)}</div>
+            <div class="log-choice">Рішення: «${escapeHtml(e.choice)}» — ${escapeHtml(e.outcomeText)}</div>
+          </div>
+        </div>`;
+      }
+      return `<div class="log-entry">
+        <div class="log-month mono">М${e.month}</div>
+        <div class="log-body">
+          <div class="log-title">Фінансовий звіт: ${e.netProfit>=0?"прибуток":"збиток"} <span class="mono ${e.netProfit>=0?"pos":""}" style="color:${e.netProfit>=0?"var(--good)":"var(--bad)"}">${fmtSigned(e.netProfit)}</span></div>
+          <div class="log-choice">Виторг ${fmtMoney(e.revenue)} · Витрати ${fmtMoney(e.cogs+e.opex+e.tax+(e.loanPayment||0))} · Готівка на кінець місяця: ${fmtMoney(e.cash)}</div>
+        </div>
+      </div>`;
+    }).join("")}
+  </div></div>`;
+}
+
+function renderGeneratorTab(){
+  const ai=state.aiSettings;
+  return `<div class="stack">
+    <div class="card stack">
+      <div><h2>Генератор подій</h2><p>Опишіть ситуацію, тему чи вставте фрагмент власних напрацювань — симулятор перетворить це на подію, яка зможе випасти у грі.</p></div>
+      <div class="field">
+        <label for="gen-input">Опис ситуації</label>
+        <textarea id="gen-input" placeholder="Наприклад: у місті запровадили новий податок на одноразовий посуд..."></textarea>
+      </div>
+      <div class="row">
+        <button class="btn btn-primary" data-action="generate-event">Згенерувати подію</button>
+        ${ai.apiKey?`<span class="pill pill-good">AI-ключ підключено</span>`:`<span class="pill pill-neutral">Вбудований генератор (без AI-ключа)</span>`}
+      </div>
+    </div>
+    <div class="card stack">
+      <h2>Ваші згенеровані події (${state.customEvents.length})</h2>
+      ${state.customEvents.length?state.customEvents.map(e=>`
+        <div class="custom-event-card">
+          <div><div class="log-title">${escapeHtml(e.title)}</div><div class="small muted">${escapeHtml(e.text)}</div></div>
+          <button class="btn btn-sm btn-danger" data-action="delete-custom" data-id="${e.id}">Видалити</button>
+        </div>`).join(""):`<div class="empty-state small">Ще нічого не згенеровано.</div>`}
+    </div>
+    <div class="card stack">
+      <fieldset>
+        <legend>Підключення власного AI (опційно)</legend>
+        <p class="small muted">Живі запити до AI API блокуються на опублікованій сторінці з міркувань безпеки хостингу. Завантажте .html-файл і відкрийте його локально (або розмістіть на власному хостингу) — тоді ці налаштування дійсно активують живу генерацію. Ключ зберігається лише у пам'яті цього браузера.</p>
+        <div class="form-grid">
+          <div class="field"><label for="ai-provider">Провайдер</label>
+            <select id="ai-provider">
+              <option value="openai" ${ai.provider==="openai"?"selected":""}>OpenAI-сумісний</option>
+              <option value="anthropic" ${ai.provider==="anthropic"?"selected":""}>Anthropic</option>
+            </select>
+          </div>
+          <div class="field"><label for="ai-model">Модель</label><input type="text" id="ai-model" value="${escapeHtml(ai.model||"")}" placeholder="напр. gpt-4o-mini"></div>
+          <div class="field"><label for="ai-key">API-ключ</label><input type="password" id="ai-key" value="${escapeHtml(ai.apiKey||"")}" placeholder="sk-..."></div>
+          <div class="field"><label for="ai-baseurl">Base URL (опційно)</label><input type="text" id="ai-baseurl" value="${escapeHtml(ai.baseUrl||"")}" placeholder="залиште порожнім для типового"></div>
+        </div>
+        <div class="row" style="margin-top:10px">
+          <button class="btn" data-action="save-ai-settings">Зберегти налаштування AI</button>
+        </div>
+      </fieldset>
+    </div>
+  </div>`;
+}
+
+function renderPanel(){
+  switch(state.ui.tab){
+    case "setup": return renderSetupTab();
+    case "dashboard": return renderDashboardTab();
+    case "history": return renderHistoryTab();
+    case "generator": return renderGeneratorTab();
+    default: return "";
+  }
+}
+
+function render(){
+  root.innerHTML = renderTopbar() + renderTabs() + `<div class="panel">${renderPanel()}</div>` + `
+    <footer class="note">Кавовий Баланс — навчальна симуляція фінансів кав'ярні. Прогрес зберігається лише в пам'яті цього браузера (localStorage) — якщо очистити дані сайту, симуляція почнеться заново.</footer>
+  `;
+  drawChart();
+}
+
+/* ============================== EVENTS (DOM) ============================== */
+
+document.addEventListener("click", e=>{
+  const btn=e.target.closest("[data-action]");
+  if(!btn) return;
+  const action=btn.dataset.action;
+
+  if(action==="switch-tab"){ state.ui.tab=btn.dataset.tab; saveState(); render(); return; }
+  if(action==="advance-month"){ advanceMonth(); return; }
+  if(action==="resolve-choice"){ resolveChoice(Number(btn.dataset.idx)); return; }
+  if(action==="reset-game"){
+    if(confirm("Почати симуляцію заново? Поточний прогрес буде втрачено.")){
+      const keepAi=state.aiSettings;
+      state=freshState(); state.aiSettings=keepAi;
+      saveState(); render();
+    }
+    return;
+  }
+  if(action==="delete-custom"){
+    state.customEvents=state.customEvents.filter(ev=>ev.id!==btn.dataset.id);
+    saveState(); render(); return;
+  }
+  if(action==="save-ai-settings"){
+    state.aiSettings={
+      provider:document.getElementById("ai-provider").value,
+      model:document.getElementById("ai-model").value.trim(),
+      apiKey:document.getElementById("ai-key").value.trim(),
+      baseUrl:document.getElementById("ai-baseurl").value.trim()
+    };
+    saveState(); render(); return;
+  }
+  if(action==="generate-event"){
+    const input=document.getElementById("gen-input").value;
+    btn.disabled=true; btn.textContent="Генеруємо…";
+    tryAiGenerate(state, input).then(json=>{
+      const ev = json ? customEventFromAiJson(json, input) : generateCustomEvent(input);
+      state.customEvents.push(ev);
+      saveState(); render();
+    });
+    return;
+  }
+});
+
+document.addEventListener("submit", e=>{
+  const form=e.target.closest("[data-action='submit-setup']");
+  if(!form) return;
+  e.preventDefault();
+  const res=trySetup(form);
+  if(res.error){
+    document.getElementById("setup-error").innerHTML=`<div class="error-box">${escapeHtml(res.error)}</div>`;
+    return;
+  }
+  render();
+});
+
+window.addEventListener("resize", ()=>{ if(state.ui.tab==="dashboard") drawChart(); });
+
+render();
+})();
+</script>
